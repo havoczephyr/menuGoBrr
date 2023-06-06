@@ -1,39 +1,28 @@
 package main
 
 import (
-	"log"
+	"fmt"
 	"os"
-	"os/exec"
-	"time"
+	"strconv"
 )
 
 func main() {
-	videoPaths := []string{
-		"videos/lazeezBreakfast.mp4",
-		"videos/lazeezLunch.mp4",
+
+	timeOption, err := strconv.Atoi(os.Args[1])
+	if err != nil {
+		fmt.Println("Failed to convert string", err)
+		return
 	}
-
-	changeHour := 12
-
-	for {
-		currentHour := time.Now().Hour()
-
-		videoIndex := 0
-		if currentHour >= changeHour {
-			videoIndex = 1
-		}
-		// Run the media player with the selected video on loop
-		cmd := exec.Command("ffplay", "-loop", "0", "-fs", "-x", "1", videoPaths[videoIndex])
-		cmd.Stdout = os.Stdout
-		cmd.Stderr = os.Stderr
-
-		err := cmd.Start()
+	isTimeInvalid := (timeOption < 0 || timeOption > 23)
+	if isTimeInvalid {
+		fmt.Println("Your time value is incorrect. please choose an hour from 0 to 23.")
+		return
+	} else {
+		err := player(timeOption)
 		if err != nil {
-			log.Println("Video playback error:", err)
-			continue
+			fmt.Println("playback error", err)
+			return
 		}
-
-		err = cmd.Wait()
-		log.Println("Video playback finished:", err)
 	}
+
 }
